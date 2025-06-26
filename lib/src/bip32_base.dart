@@ -158,14 +158,16 @@ class BIP32 {
     return ecc.verify(hash, publicKey, signature);
   }
 
-  factory BIP32.fromBase58(String string, [NetworkType? nw]) {
+  factory BIP32.fromBase58(String string,
+      {NetworkType? network, bool bypassVersion = false}) {
     Uint8List buffer = bs58check.decode(string);
     if (buffer.length != 78) throw new ArgumentError("Invalid buffer length");
-    NetworkType network = nw ?? _BITCOIN;
+    network ??= _BITCOIN;
     ByteData bytes = buffer.buffer.asByteData();
     // 4 bytes: version bytes
     var version = bytes.getUint32(0);
-    if (version != network.bip32.private && version != network.bip32.public) {
+    if (!bypassVersion &&
+        (version != network.bip32.private && version != network.bip32.public)) {
       throw new ArgumentError("Invalid network version");
     }
     // 1 byte: depth: 0x00 for master nodes, 0x01 for level-1 descendants, ...
@@ -205,8 +207,8 @@ class BIP32 {
   }
 
   factory BIP32.fromPublicKey(Uint8List publicKey, Uint8List chainCode,
-      [NetworkType? nw]) {
-    NetworkType network = nw ?? _BITCOIN;
+      [NetworkType? network]) {
+    network ??= _BITCOIN;
     if (!ecc.isPoint(publicKey)) {
       throw new ArgumentError("Point is not on the curve");
     }
@@ -214,8 +216,8 @@ class BIP32 {
   }
 
   factory BIP32.fromPrivateKey(Uint8List privateKey, Uint8List chainCode,
-      [NetworkType? nw]) {
-    NetworkType network = nw ?? _BITCOIN;
+      [NetworkType? network]) {
+    network ??= _BITCOIN;
     if (privateKey.length != 32)
       throw new ArgumentError(
           "Expected property privateKey of type Buffer(Length: 32)");
@@ -224,14 +226,14 @@ class BIP32 {
     return new BIP32(privateKey, null, chainCode, network);
   }
 
-  factory BIP32.fromSeed(Uint8List seed, [NetworkType? nw]) {
+  factory BIP32.fromSeed(Uint8List seed, [NetworkType? network]) {
     if (seed.length < 16) {
       throw new ArgumentError("Seed should be at least 128 bits");
     }
     if (seed.length > 64) {
       throw new ArgumentError("Seed should be at most 512 bits");
     }
-    NetworkType network = nw ?? _BITCOIN;
+    network ??= _BITCOIN;
     final I = hmacSHA512(utf8.encode("Bitcoin seed"), seed);
     final IL = I.sublist(0, 32);
     final IR = I.sublist(32);
