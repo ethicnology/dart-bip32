@@ -1,31 +1,14 @@
 import 'dart:typed_data';
 
+import 'package:bip32_keys/src/constants.dart';
+import 'package:bip32_keys/src/enums.dart';
+
 import 'utils/crypto.dart';
 import 'utils/ecurve.dart' as ecc;
 import 'package:bs58check/bs58check.dart' as bs58check;
 import 'utils/wif.dart' as wif;
 import 'dart:convert';
 
-// TODO: Put public facing types in this file.
-class Bip32Type {
-  int public;
-  int private;
-  Bip32Type({required this.public, required this.private});
-}
-
-class NetworkType {
-  int wif;
-  Bip32Type bip32;
-  NetworkType({required this.wif, required this.bip32});
-}
-
-final _BITCOIN = new NetworkType(
-    wif: 0x80, bip32: new Bip32Type(public: 0x0488b21e, private: 0x0488ade4));
-const HIGHEST_BIT = 0x80000000;
-const UINT31_MAX = 2147483647; // 2^31 - 1
-const UINT32_MAX = 4294967295; // 2^32 - 1
-
-/// Checks if you are awesome. Spoiler: you are.
 class Bip32Keys {
   Uint8List? _d;
   Uint8List? _Q;
@@ -162,7 +145,7 @@ class Bip32Keys {
       {NetworkType? network, bool bypassVersion = false}) {
     Uint8List buffer = bs58check.decode(string);
     if (buffer.length != 78) throw new ArgumentError("Invalid buffer length");
-    network ??= _BITCOIN;
+    network ??= BITCOIN;
     ByteData bytes = buffer.buffer.asByteData();
     // 4 bytes: version bytes
     var version = bytes.getUint32(0);
@@ -208,7 +191,7 @@ class Bip32Keys {
 
   factory Bip32Keys.fromPublicKey(Uint8List publicKey, Uint8List chainCode,
       [NetworkType? network]) {
-    network ??= _BITCOIN;
+    network ??= BITCOIN;
     if (!ecc.isPoint(publicKey)) {
       throw new ArgumentError("Point is not on the curve");
     }
@@ -217,7 +200,7 @@ class Bip32Keys {
 
   factory Bip32Keys.fromPrivateKey(Uint8List privateKey, Uint8List chainCode,
       [NetworkType? network]) {
-    network ??= _BITCOIN;
+    network ??= BITCOIN;
     if (privateKey.length != 32)
       throw new ArgumentError(
           "Expected property private of type Buffer(Length: 32)");
@@ -233,7 +216,7 @@ class Bip32Keys {
     if (seed.length > 64) {
       throw new ArgumentError("Seed should be at most 512 bits");
     }
-    network ??= _BITCOIN;
+    network ??= BITCOIN;
     final I = hmacSHA512(utf8.encode("Bitcoin seed"), seed);
     final IL = I.sublist(0, 32);
     final IR = I.sublist(32);
