@@ -1,8 +1,11 @@
-# bip32
+[![codecov](https://codecov.io/gh/ethicnology/dart-bip32-keys/graph/badge.svg?token=J6E7XAI0FR)](https://codecov.io/gh/ethicnology/dart-bip32-keys)
+
+# bip32-keys
 
 A [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) compatible library for Flutter writing in Dart.
 
 Inspired by [bitcoinjs](https://github.com/bitcoinjs/bip32)
+Forked from [bip32](https://github.com/dart-bitcoin/bip32-dart)
 
 ## Example
 ```dart
