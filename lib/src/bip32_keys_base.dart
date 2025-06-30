@@ -28,11 +28,9 @@ class Bip32Keys {
   Uint8List get identifier => hash160(public);
   Uint8List get fingerprint => identifier.sublist(0, 4);
 
-  bool isNeutered() {
-    return this._d == null;
-  }
+  bool get isNeutered => this._d == null;
 
-  Bip32Keys neutered() {
+  Bip32Keys get neutered {
     final neutered =
         Bip32Keys.fromPublicKey(this.public, this.chainCode, this.network);
     neutered.depth = this.depth;
@@ -42,8 +40,7 @@ class Bip32Keys {
   }
 
   String toBase58() {
-    final version =
-        (!isNeutered()) ? network.bip32.private : network.bip32.public;
+    final version = !isNeutered ? network.bip32.private : network.bip32.public;
     Uint8List buffer = Uint8List(78);
     ByteData bytes = buffer.buffer.asByteData();
     bytes.setUint32(0, version);
@@ -51,7 +48,7 @@ class Bip32Keys {
     bytes.setUint32(5, parentFingerprint);
     bytes.setUint32(9, index);
     buffer.setRange(13, 45, chainCode);
-    if (!isNeutered()) {
+    if (!isNeutered) {
       bytes.setUint8(45, 0);
       buffer.setRange(46, 78, private!);
     } else {
@@ -73,7 +70,7 @@ class Bip32Keys {
     final isHardened = index >= HIGHEST_BIT;
     Uint8List data = Uint8List(37);
     if (isHardened) {
-      if (isNeutered()) {
+      if (isNeutered) {
         throw ArgumentError("Missing private key for hardened child key");
       }
       data[0] = 0x00;
@@ -90,7 +87,7 @@ class Bip32Keys {
       return derive(index + 1);
     }
     Bip32Keys hd;
-    if (!isNeutered()) {
+    if (!isNeutered) {
       final ki = ecc.privateAdd(private!, IL);
       if (ki == null) return derive(index + 1);
       hd = Bip32Keys.fromPrivateKey(ki, IR, network);

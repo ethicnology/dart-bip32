@@ -69,7 +69,7 @@ void main() {
     final f = fixtures['valid'][1];
     final c = f['master']['children'][0];
     final master = Bip32Keys.fromBase58(f['master']['base58Priv'] as String);
-    final child = master.derive(c['m']).neutered();
+    final child = master.derive(c['m']).neutered;
     expect(child.toBase58(), c['base58']);
   });
 
@@ -77,7 +77,7 @@ void main() {
     final f = fixtures['valid'][0];
     final c = f['master']['children'][0];
     final master = Bip32Keys.fromBase58(f['master']['base58Priv'] as String);
-    final child = master.deriveHardened(c['m']).neutered();
+    final child = master.deriveHardened(c['m']).neutered;
     expect(child.toBase58(), c['base58']);
   });
 
@@ -216,8 +216,8 @@ void verify(Bip32Keys hd, prv, f, network) {
   } else {
     expect(hd.private, null);
   }
-  expect(hd.neutered().toBase58(), f['base58']);
-  expect(hd.isNeutered(), !prv);
+  expect(hd.neutered.toBase58(), f['base58']);
+  expect(hd.isNeutered, !prv);
 
   if (f['children'] == null) return;
   if (!prv &&
@@ -241,7 +241,7 @@ void verify(Bip32Keys hd, prv, f, network) {
     } else {
       // verify any publicly derived children
       if (cf['base58'] != null)
-        verify(shd.neutered().derive(cf['m']), false, cf, network);
+        verify(shd.neutered.derive(cf['m']), false, cf, network);
       shd = shd.derive(cf['m']);
       verify(shd, prv, cf, network);
     }

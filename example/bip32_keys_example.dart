@@ -9,8 +9,8 @@ main() {
   print(HEX.encode(node.private!));
   // => e8f32e723decf4051aefac8e2c93c9c5b214313817cdb01a1494b917c8436b35
 
-  Bip32Keys nodeNeutered = node.neutered();
-  print(nodeNeutered.isNeutered());
+  Bip32Keys nodeNeutered = node.neutered;
+  print(nodeNeutered.isNeutered);
   // => true
 
   print(HEX.encode(nodeNeutered.public));
@@ -26,8 +26,8 @@ main() {
   print(HEX.encode(child.private!));
   // => f26cf12f89ab91aeeb8d7324a22e8ba080829db15c9245414b073a8c342322aa
 
-  Bip32Keys childNeutered = child.neutered();
-  print(childNeutered.isNeutered());
+  Bip32Keys childNeutered = child.neutered;
+  print(childNeutered.isNeutered);
   // => true
 
   print(HEX.encode(childNeutered.public));
