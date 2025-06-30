@@ -1,3 +1,19 @@
+## 3.0.0
+
+- **BREAKING**: Rename BIP32 to Bip32Keys and library to bip32_keys
+- **BREAKING**: Update Bip32Keys methods to use named parameters for network
+- **BREAKING**: Update neutered and isNeutered methods to use getters
+- **BREAKING**: Refactor and simplify error handling and improve code readability
+- **BREAKING**: Split constants and enums into separate files
+- **BREAKING**: Update analysis options and bump dependencies
+- Add GitHub Actions workflow for tests and coverage
+- Add bypassVersion parameter support to BIP32 factory methods
+- Update README to include code coverage badge and fork information
+- Fix linter issues
+
+## 2.0.0
+- Add null-safety
+
 ## 1.0.0
 
 - Initial version, created by anicdh
@@ -34,6 +50,3 @@
 ## 1.0.10
 
 - Fix sign
-
-## 2.0.0
-- Add null-safety
