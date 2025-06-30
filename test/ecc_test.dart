@@ -17,10 +17,10 @@ void main() {
           HEX.decode(
                   "6607599b768ce88470b3b20919f9c63bff663e2f1ec3e3072d22fd9da3847784c361d5accc3b411019f5c81dd3e4ccf9fd1fddb232bfc9bfe23864e2e6ee793f")
               as Uint8List,
-          defichain_testnet);
+          network: defichain_testnet);
 
       final xMasterPriv =
-          Bip32Keys.fromSeed(hdSeed.private!, defichain_testnet);
+          Bip32Keys.fromSeed(hdSeed.private!, network: defichain_testnet);
       final privateKey = xMasterPriv.derivePath("m/0'/0'/0'");
 
       final privateKeyHex = HEX.encode(privateKey.private!);

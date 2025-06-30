@@ -40,7 +40,8 @@ void main() {
 
         if (ff['seed'] != null) {
           var seed = HEX.decode(ff['seed']);
-          var hdSeed = Bip32Keys.fromSeed(seed as Uint8List, network);
+          var hdSeed =
+              Bip32Keys.fromSeed(Uint8List.fromList(seed), network: network);
           test('works for seed -> HD wallet', () {
             verify(hdSeed, true, ff, network);
           });
