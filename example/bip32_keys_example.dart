@@ -1,47 +1,47 @@
 import 'dart:typed_data';
-import '../lib/bip32.dart' as bip32;
+import 'package:bip32_keys/bip32_keys.dart';
 import 'package:hex/hex.dart';
 
 main() {
-  bip32.BIP32 node = bip32.BIP32.fromBase58(
+  Bip32Keys node = Bip32Keys.fromBase58(
       'xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi');
 
-  print(HEX.encode(node.privateKey!));
+  print(HEX.encode(node.private!));
   // => e8f32e723decf4051aefac8e2c93c9c5b214313817cdb01a1494b917c8436b35
 
-  bip32.BIP32 nodeNeutered = node.neutered();
+  Bip32Keys nodeNeutered = node.neutered();
   print(nodeNeutered.isNeutered());
   // => true
 
-  print(HEX.encode(nodeNeutered.publicKey));
+  print(HEX.encode(nodeNeutered.public));
   // => 0339a36013301597daef41fbe593a02cc513d0b55527ec2df1050e2e8ff49c85c2
 
   print(nodeNeutered.toBase58());
   // => xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8
 
-  bip32.BIP32 child = node.derivePath('m/0/0');
+  Bip32Keys child = node.derivePath('m/0/0');
   print(child.toBase58());
   // => xprv9ww7sMFLzJMzur2oEQDB642fbsMS4q6JRraMVTrM9bTWBq7NDS8ZpmsKVB4YF3mZecqax1fjnsPF19xnsJNfRp4RSyexacULXMKowSACTRc
 
-  print(HEX.encode(child.privateKey!));
+  print(HEX.encode(child.private!));
   // => f26cf12f89ab91aeeb8d7324a22e8ba080829db15c9245414b073a8c342322aa
 
-  bip32.BIP32 childNeutered = child.neutered();
+  Bip32Keys childNeutered = child.neutered();
   print(childNeutered.isNeutered());
   // => true
 
-  print(HEX.encode(childNeutered.publicKey));
+  print(HEX.encode(childNeutered.public));
   // => 02756de182c5dd4b717ea87e693006da62dbb3cddaa4a5cad2ed1f5bbab755f0f5
 
   print(childNeutered.toBase58());
   // => xpub6AvUGrnEpfvJ8L7GLRkBTByQ9uBvUHp9o5VxHrFxhvzV4dSWkySpNaBoLR9FpbnwRmTa69yLHF3QfcaxbWT7gWdwws5k4dpmJvqpEuMWwnj
 
-  bip32.BIP32 nodeFromSeed = bip32.BIP32
-      .fromSeed(HEX.decode("000102030405060708090a0b0c0d0e0f") as Uint8List);
+  Bip32Keys nodeFromSeed = Bip32Keys.fromSeed(
+      HEX.decode("000102030405060708090a0b0c0d0e0f") as Uint8List);
   print(nodeFromSeed.toBase58());
   // => xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi
 
-  bip32.BIP32 nodeFromPub = bip32.BIP32.fromBase58(
+  Bip32Keys nodeFromPub = Bip32Keys.fromBase58(
       "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8");
   print(nodeFromPub.toBase58());
   // => xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8
