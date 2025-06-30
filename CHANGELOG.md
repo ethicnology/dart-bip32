@@ -1,3 +1,6 @@
+## 3.0.1
+- Downgrade `pointycastle` to `3.9.1` to ensure compatibility with other dependencies
+
 ## 3.0.0
 
 - **BREAKING**: Rename BIP32 to Bip32Keys and library to bip32_keys
