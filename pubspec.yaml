@@ -13,3 +13,4 @@ dependencies:
 
 dev_dependencies:
   test: ^1.26.2
+  lints: ^5.1.1
