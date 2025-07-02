@@ -1,80 +1,82 @@
 [![codecov](https://codecov.io/gh/ethicnology/dart-bip32-keys/graph/badge.svg?token=J6E7XAI0FR)](https://codecov.io/gh/ethicnology/dart-bip32-keys)
 
-# bip32-keys
+# bip32_keys
 
-A [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) compatible library for Flutter writing in Dart.
-
-Inspired by [bitcoinjs](https://github.com/bitcoinjs/bip32)
-Forked from [bip32](https://github.com/dart-bitcoin/bip32-dart)
+A [BIP32](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) library with [SLIP132](https://github.com/satoshilabs/slips/blob/master/slip-0132.md) support for Dart/Flutter community.
 
 ## Example
+
+See `example/bip32_keys_example.dart` for a complete usage example.
+
+
+## Supported SLIP-132 Formats
+
+| Format | Description | Network |
+|--------|-------------|---------|
+| `xpub` | Legacy P2PKH | Bitcoin Mainnet |
+| `ypub` | P2SH-P2WPKH | Bitcoin Mainnet |
+| `Ypub` | P2SH-P2WSH | Bitcoin Mainnet |
+| `zpub` | P2WPKH | Bitcoin Mainnet |
+| `Zpub` | P2WSH | Bitcoin Mainnet |
+| `tpub` | Legacy P2PKH | Bitcoin Testnet |
+| `upub` | P2SH-P2WPKH | Bitcoin Testnet |
+| `Upub` | P2SH-P2WSH | Bitcoin Testnet |
+| `vpub` | P2WPKH | Bitcoin Testnet |
+| `Vpub` | P2WSH | Bitcoin Testnet |
+
+## Usage
+
 ```dart
-import 'dart:typed_data';
 import 'package:bip32_keys/bip32_keys.dart';
-import 'package:hex/hex.dart';
 
-main() {
-  Bip32Keys node = Bip32Keys.fromBase58(
-      'xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi');
+void main() {
+  const xprv =
+      'xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi';
+  final masterKey = Bip32Keys.fromBase58(xprv);
 
-  print(HEX.encode(node.private!));
-  // => e8f32e723decf4051aefac8e2c93c9c5b214313817cdb01a1494b917c8436b35
+  print('Master key (xpub): ${masterKey.toBase58()}');
+  print('Master key (WIF): ${masterKey.toWIF()}');
 
-  Bip32Keys nodeNeutered = node.neutered;
-  print(nodeNeutered.isNeutered);
-  // => true
+  // Derive a child key
+  final childKey = masterKey.derive(0);
+  print('Child key: ${childKey.toBase58()}');
 
-  print(HEX.encode(nodeNeutered.public));
-  // => 0339a36013301597daef41fbe593a02cc513d0b55527ec2df1050e2e8ff49c85c2
+  // Derive a hardened child key
+  final hardenedChildKey = masterKey.deriveHardened(0);
+  print('Hardened child key: ${hardenedChildKey.toBase58()}');
 
-  print(nodeNeutered.toBase58());
-  // => xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8
+  // Derive a path
+  final pathKey = masterKey.derivePath("m/44'/0'/0'/0/0");
+  print('Path key: ${pathKey.toBase58()}');
 
-  Bip32Keys child = node.derivePath('m/0/0');
-  print(child.toBase58());
-  // => xprv9ww7sMFLzJMzur2oEQDB642fbsMS4q6JRraMVTrM9bTWBq7NDS8ZpmsKVB4YF3mZecqax1fjnsPF19xnsJNfRp4RSyexacULXMKowSACTRc
+  // Get neutered version (public only)
+  final neuteredKey = masterKey.neutered;
+  print('Neutered key: ${neuteredKey.toBase58()}');
 
-  print(HEX.encode(child.private!));
-  // => f26cf12f89ab91aeeb8d7324a22e8ba080829db15c9245414b073a8c342322aa
+  // SLIP-132 integration examples
+  print('\n=== SLIP-132 Examples ===');
 
-  Bip32Keys childNeutered = child.neutered;
-  print(childNeutered.isNeutered);
-  // => true
+  // Convert to different SLIP-132 formats
+  print('zpub format: ${neuteredKey.toSlip132(Slip132Format.zpub)}');
+  print('ypub format: ${neuteredKey.toSlip132(Slip132Format.ypub)}');
 
-  print(HEX.encode(childNeutered.public));
-  // => 02756de182c5dd4b717ea87e693006da62dbb3cddaa4a5cad2ed1f5bbab755f0f5
+  // Get fingerprints in different formats
+  print(
+      'Fingerprint (xpub): ${neuteredKey.getSlip132Fingerprint(Slip132Format.xpub)}');
+  print(
+      'Fingerprint (zpub): ${neuteredKey.getSlip132Fingerprint(Slip132Format.zpub)}');
+  print(
+      'Parent fingerprint: ${neuteredKey.getSlip132ParentFingerprint(Slip132Format.xpub)}');
 
-  print(childNeutered.toBase58());
-  // => xpub6AvUGrnEpfvJ8L7GLRkBTByQ9uBvUHp9o5VxHrFxhvzV4dSWkySpNaBoLR9FpbnwRmTa69yLHF3QfcaxbWT7gWdwws5k4dpmJvqpEuMWwnj
+  // Create from existing xpub
+  final existingXpub =
+      "xpub6DJwRncrB8eNrzUq8XxgjwCZsEeWP8FeqBJbJQZ8JfuDwLdAzyjhHiHJieNuar1wjQTyihhMWtaKGE4DUd8uBgtyrNJqF5drwbNVUqb83b7";
+  final importedKey = Bip32Keys.fromBase58(existingXpub);
 
-  Bip32Keys nodeFromSeed = Bip32Keys.fromSeed(
-      HEX.decode("000102030405060708090a0b0c0d0e0f") as Uint8List);
-  print(nodeFromSeed.toBase58());
-  // => xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi
-
-  Bip32Keys nodeFromPub = Bip32Keys.fromBase58(
-      "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8");
-  print(nodeFromPub.toBase58());
-  // => xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8
-
-  var message = HEX.decode(
-          "0202020202020202020202020202020202020202020202020202020202020202")
-      as Uint8List;
-  var signature = nodeFromSeed.sign(message);
-  print(signature);
-  // => [63, 219, 20, 114, 95, 184, 192, 55, 216, 206, 126, 121, 17, 71, 64, 70, 163, 82, 247, 73, 243, 95, 30, 137, 177, 155, 100, 225, 177, 203, 217, 147, 122, 64, 208, 129, 54, 133, 113, 41, 216, 160, 191, 15, 136, 98, 235, 25, 219, 178, 70, 222, 127, 151, 135, 242, 25, 192, 161, 187, 187, 84, 81, 215]
-
-  print(HEX.encode(signature));
-  // => 3fdb14725fb8c037d8ce7e7911474046a352f749f35f1e89b19b64e1b1cbd9937a40d08136857129d8a0bf0f8862eb19dbb246de7f9787f219c0a1bbbb5451d7
-
-  print(nodeFromSeed.verify(message, signature));
-  // => true
+  print('\n=== Imported Key Examples ===');
+  print('Original xpub: $existingXpub');
+  print('Converted to zpub: ${importedKey.toSlip132(Slip132Format.zpub)}');
+  print(
+      'Fingerprint: ${importedKey.getSlip132Fingerprint(Slip132Format.xpub)}');
 }
-
 ```
-
-## Contributor
-  * anicdh <anic.dh@gmail.com>
-  * p3root 
-  * jcramer (null-safety)
-  * ethicnology
