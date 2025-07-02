@@ -3,6 +3,7 @@ import 'package:bs58check/bs58check.dart' as bs58check;
 import 'package:hex/hex.dart';
 import 'bip32_keys_base.dart';
 import 'enums.dart';
+import 'constants.dart';
 
 /// SLIP-132 extensions for Bip32Keys
 extension Slip132Extension on Bip32Keys {
@@ -15,7 +16,7 @@ extension Slip132Extension on Bip32Keys {
     if (isNeutered) {
       return changeVersionBytes(toBase58(), format);
     } else {
-      return "Cannot convert private key to SLIP-132 format";
+      throw Constants.errorCannotConvertPrivateKey;
     }
   }
 
@@ -28,7 +29,7 @@ extension Slip132Extension on Bip32Keys {
     if (isNeutered) {
       return getFingerprint(toBase58(), format);
     } else {
-      return "Cannot get fingerprint from private key";
+      throw Constants.errorCannotGetFingerprintFromPrivate;
     }
   }
 
@@ -41,7 +42,7 @@ extension Slip132Extension on Bip32Keys {
     if (isNeutered) {
       return getParentFingerprint(toBase58(), format);
     } else {
-      return "Cannot get parent fingerprint from private key";
+      throw Constants.errorCannotGetParentFingerprintFromPrivate;
     }
   }
 }
@@ -61,7 +62,8 @@ String changeVersionBytes(String xpub, Slip132Format targetFormat) {
 
   try {
     final data = bs58check.decode(xpub);
-    final dataWithoutVersion = data.sublist(4); // Remove original version bytes
+    final dataWithoutVersion = data
+        .sublist(Constants.versionBytesLength); // Remove original version bytes
     final newVersionBytes = HEX.decode(targetFormat.prefix);
     final combinedData = [...newVersionBytes, ...dataWithoutVersion];
     final finalData = Uint8List.fromList(combinedData);

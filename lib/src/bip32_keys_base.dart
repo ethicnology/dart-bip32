@@ -83,8 +83,10 @@ class Bip32Keys {
 
   /// Derives a child key at the given index
   Bip32Keys derive(int index) {
-    if (index > uint32Max || index < 0) throw ArgumentError("Expected UInt32");
-    final isHardened = index >= highestBit;
+    if (index > Constants.uint32Max || index < 0) {
+      throw ArgumentError(Constants.errorExpectedUInt32);
+    }
+    final isHardened = index >= Constants.highestBit;
     final data = Uint8List(37);
     if (isHardened) {
       if (isNeutered) {
@@ -121,18 +123,21 @@ class Bip32Keys {
 
   /// Derives a hardened child key at the given index
   Bip32Keys deriveHardened(int index) {
-    if (index > uint31Max || index < 0) throw ArgumentError("Expected UInt31");
-    return derive(index + highestBit);
+    if (index > Constants.uint31Max || index < 0) {
+      throw ArgumentError(Constants.errorExpectedUInt31);
+    }
+    return derive(index + Constants.highestBit);
   }
 
   /// Derives a key from a BIP32 path string
   Bip32Keys derivePath(String path) {
-    final regex = RegExp(r"^(m\/)?(\d+'?\/)*\d+'?$");
-    if (!regex.hasMatch(path)) throw ArgumentError("Expected BIP32 Path");
+    if (!Constants.bip32PathRegex.hasMatch(path)) {
+      throw ArgumentError(Constants.errorExpectedBip32Path);
+    }
     List<String> splitPath = path.split("/");
-    if (splitPath[0] == "m") {
-      if (parentFingerprint != 0) {
-        throw ArgumentError("Expected master, got child");
+    if (splitPath[0] == Constants.masterPrefix) {
+      if (parentFingerprint != Constants.defaultParentFingerprint) {
+        throw ArgumentError(Constants.errorExpectedMasterGotChild);
       }
       splitPath = splitPath.sublist(1);
     }
@@ -160,33 +165,40 @@ class Bip32Keys {
   factory Bip32Keys.fromBase58(String string,
       {NetworkType? network, bool bypassVersion = false}) {
     final buffer = bs58check.decode(string);
-    if (buffer.length != 78) throw ArgumentError("Invalid buffer length");
-    network ??= bitcoin;
+    if (buffer.length != Constants.extendedKeyLength) {
+      throw ArgumentError(Constants.errorInvalidBufferLength);
+    }
+    network ??= Constants.bitcoin;
     ByteData bytes = buffer.buffer.asByteData();
     var version = bytes.getUint32(0);
     if (!bypassVersion &&
         (version != network.bip32.private && version != network.bip32.public)) {
-      throw ArgumentError("Invalid network version");
+      throw ArgumentError(Constants.errorInvalidNetworkVersion);
     }
-    var depth = buffer[4];
-    var parentFingerprint = bytes.getUint32(5);
-    if (depth == 0) {
-      if (parentFingerprint != 0x00000000) {
-        throw ArgumentError("Invalid parent fingerprint");
+    var depth = buffer[Constants.depthOffset];
+    var parentFingerprint = bytes.getUint32(Constants.parentFingerprintOffset);
+    if (depth == Constants.minDepth) {
+      if (parentFingerprint != Constants.defaultParentFingerprint) {
+        throw ArgumentError(Constants.errorInvalidParentFingerprint);
       }
     }
-    var index = bytes.getUint32(9);
-    if (depth == 0 && index != 0) throw ArgumentError("Invalid index");
+    var index = bytes.getUint32(Constants.indexOffset);
+    if (depth == Constants.minDepth && index != Constants.defaultIndex) {
+      throw ArgumentError(Constants.errorInvalidIndex);
+    }
     final chainCode = buffer.sublist(13, 45);
     late Bip32Keys hd;
     if (version == network.bip32.private) {
-      if (bytes.getUint8(45) != 0x00) {
-        throw ArgumentError("Invalid private key");
+      if (bytes.getUint8(Constants.publicKeyOffset) !=
+          Constants.defaultPrivateKeyPrefix) {
+        throw ArgumentError(Constants.errorInvalidPrivateKey);
       }
-      final k = buffer.sublist(46, 78);
+      final k = buffer.sublist(
+          Constants.privateKeyOffset, Constants.extendedKeyLength);
       hd = Bip32Keys.fromPrivateKey(k, chainCode, network: network);
     } else {
-      final x = buffer.sublist(45, 78);
+      final x = buffer.sublist(
+          Constants.publicKeyOffset, Constants.extendedKeyLength);
       hd = Bip32Keys.fromPublicKey(x, chainCode, network: network);
     }
     hd.depth = depth;
@@ -198,9 +210,9 @@ class Bip32Keys {
   /// Constructs a BIP32 key from a public key and chain code
   factory Bip32Keys.fromPublicKey(Uint8List publicKey, Uint8List chainCode,
       {NetworkType? network}) {
-    network ??= bitcoin;
+    network ??= Constants.bitcoin;
     if (!ecc.isPoint(publicKey)) {
-      throw ArgumentError("Point is not on the curve");
+      throw ArgumentError(Constants.errorPointNotOnCurve);
     }
     return Bip32Keys(null, publicKey, chainCode, network);
   }
@@ -208,29 +220,28 @@ class Bip32Keys {
   /// Constructs a BIP32 key from a private key and chain code
   factory Bip32Keys.fromPrivateKey(Uint8List privateKey, Uint8List chainCode,
       {NetworkType? network}) {
-    network ??= bitcoin;
-    if (privateKey.length != 32) {
-      throw ArgumentError(
-          "Expected property private of type Buffer(Length: 32)");
+    network ??= Constants.bitcoin;
+    if (privateKey.length != Constants.keyLength) {
+      throw ArgumentError(Constants.errorPrivateKeyLength);
     }
     if (!ecc.isPrivate(privateKey)) {
-      throw ArgumentError("Private key not in range [1, n]");
+      throw ArgumentError(Constants.errorPrivateKeyRange);
     }
     return Bip32Keys(privateKey, null, chainCode, network);
   }
 
   /// Constructs a BIP32 key from a seed
   factory Bip32Keys.fromSeed(Uint8List seed, {NetworkType? network}) {
-    if (seed.length < 16) {
-      throw ArgumentError("Seed should be at least 128 bits");
+    if (seed.length < Constants.minSeedLength) {
+      throw ArgumentError(Constants.errorSeedTooShort);
     }
-    if (seed.length > 64) {
-      throw ArgumentError("Seed should be at most 512 bits");
+    if (seed.length > Constants.maxSeedLength) {
+      throw ArgumentError(Constants.errorSeedTooLong);
     }
-    network ??= bitcoin;
-    final i = hmacSHA512(utf8.encode("Bitcoin seed"), seed);
-    final il = i.sublist(0, 32);
-    final ir = i.sublist(32);
+    network ??= Constants.bitcoin;
+    final i = hmacSHA512(utf8.encode(Constants.bitcoinSeed), seed);
+    final il = i.sublist(0, Constants.keyLength);
+    final ir = i.sublist(Constants.keyLength);
     return Bip32Keys.fromPrivateKey(il, ir, network: network);
   }
 }
