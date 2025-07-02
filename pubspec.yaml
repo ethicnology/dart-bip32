@@ -1,5 +1,5 @@
 name: bip32_keys
-description: A BIP32 (https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) compatible library for Flutter writing by Dart.
+description: A BIP32 with SLIP132 support for Dart/Flutter community.
 version: 3.1.0
 homepage: https://github.com/ethicnology/dart-bip32-keys
 
