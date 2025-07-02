@@ -1,3 +1,16 @@
+## 3.1.0
+
+- **FEAT**: Add SLIP-132 support with comprehensive enum-based format system
+- **FEAT**: Add `Slip132Format` enum with all Bitcoin mainnet and testnet formats (xpub, ypub, zpub, etc.)
+- **FEAT**: Add `Slip132Extension` on `Bip32Keys` with conversion and fingerprint methods
+- **FEAT**: Add `changeVersionBytes()` function for converting between SLIP-132 formats
+- **FEAT**: Add `getFingerprint()`, `getParentFingerprint()`, and `getDepth()` functions
+- **FEAT**: Add comprehensive unit tests for SLIP-132 functionality
+- **FEAT**: Update example to demonstrate SLIP-132 usage with enum-based API
+- **FEAT**: Update README with SLIP-132 documentation and API reference
+- **REFACTOR**: Move SLIP-132 functionality to extension for better separation of concerns
+- **REFACTOR**: Remove NetworkConfig class and maps in favor of enum-based approach
+
 ## 3.0.1
 - Downgrade `pointycastle` to `3.9.1` to ensure compatibility with other dependencies
 

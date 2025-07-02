@@ -1,6 +1,6 @@
 name: bip32_keys
 description: A BIP32 (https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki) compatible library for Flutter writing by Dart.
-version: 3.0.1
+version: 3.1.0
 homepage: https://github.com/ethicnology/dart-bip32-keys
 
 environment:
