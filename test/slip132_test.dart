@@ -35,6 +35,46 @@ class TestValues {
 
 void main() {
   group('SLIP-132 Tests', () {
+    group('parse and tryParse functions', () {
+      test('parse xpub format', () {
+        final result = Slip132Format.parse(TestValues.xpub);
+        expect(result, Slip132Format.xpub);
+      });
+
+      test('parse ypub format', () {
+        final result = Slip132Format.parse(TestValues.ypub);
+        expect(result, Slip132Format.ypub);
+      });
+
+      test('parse zpub format', () {
+        final result = Slip132Format.parse(TestValues.zpub);
+        expect(result, Slip132Format.zpub);
+      });
+
+      test('parse tpub format', () {
+        final result = Slip132Format.parse(TestValues.xpubToTpub);
+        expect(result, Slip132Format.tpub);
+      });
+
+      test('parse upub format', () {
+        final result = Slip132Format.parse(TestValues.xpubToUpub);
+        expect(result, Slip132Format.upub);
+      });
+
+      test('parse vpub format', () {
+        final result = Slip132Format.parse(TestValues.xpubToVpub);
+        expect(result, Slip132Format.vpub);
+      });
+
+      test('parse throws FormatException for invalid format', () {
+        expect(() => Slip132Format.parse('invalid'), throwsA(anything));
+      });
+
+      test('parse throws FormatException for short input', () {
+        expect(() => Slip132Format.parse('abc'), throwsA(anything));
+      });
+    });
+
     test('xpub fingerprint', () {
       final result = getFingerprint(TestValues.xpub, Slip132Format.xpub);
       expect(result, TestValues.xpubFingerprint);

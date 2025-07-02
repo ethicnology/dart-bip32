@@ -64,7 +64,7 @@ String changeVersionBytes(String xpub, Slip132Format targetFormat) {
     final data = bs58check.decode(xpub);
     final dataWithoutVersion = data
         .sublist(Constants.versionBytesLength); // Remove original version bytes
-    final newVersionBytes = HEX.decode(targetFormat.prefix);
+    final newVersionBytes = HEX.decode(targetFormat.version);
     final combinedData = [...newVersionBytes, ...dataWithoutVersion];
     final finalData = Uint8List.fromList(combinedData);
     return bs58check.encode(finalData);

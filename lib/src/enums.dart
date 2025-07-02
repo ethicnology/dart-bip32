@@ -1,5 +1,8 @@
 // ignore_for_file: constant_identifier_names
 
+import 'package:bs58check/bs58check.dart' as bs58check;
+import 'package:hex/hex.dart';
+
 class Bip32Type {
   int public;
   int private;
@@ -15,7 +18,7 @@ class NetworkType {
 // inspired by https://github.com/jlopp/xpub-converter/blob/master/js/xpubConvert.js
 enum Slip132Format {
   xpub(
-    prefix: '0488b21e',
+    version: '0488b21e',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'bc',
     bip32Public: 0x0488b21e,
@@ -25,7 +28,7 @@ enum Slip132Format {
     wif: 0x80,
   ),
   ypub(
-    prefix: '049d7cb2',
+    version: '049d7cb2',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'bc',
     bip32Public: 0x049d7cb2,
@@ -35,7 +38,7 @@ enum Slip132Format {
     wif: 0x80,
   ),
   Ypub(
-    prefix: '0295b43f',
+    version: '0295b43f',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'bc',
     bip32Public: 0x0295b43f,
@@ -45,7 +48,7 @@ enum Slip132Format {
     wif: 0x80,
   ),
   zpub(
-    prefix: '04b24746',
+    version: '04b24746',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'bc',
     bip32Public: 0x04b24746,
@@ -55,7 +58,7 @@ enum Slip132Format {
     wif: 0x80,
   ),
   Zpub(
-    prefix: '02aa7ed3',
+    version: '02aa7ed3',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'bc',
     bip32Public: 0x02aa7ed3,
@@ -65,7 +68,7 @@ enum Slip132Format {
     wif: 0x80,
   ),
   tpub(
-    prefix: '043587cf',
+    version: '043587cf',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'tb',
     bip32Public: 0x043587cf,
@@ -75,7 +78,7 @@ enum Slip132Format {
     wif: 0xef,
   ),
   upub(
-    prefix: '044a5262',
+    version: '044a5262',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'tb',
     bip32Public: 0x044a5262,
@@ -85,7 +88,7 @@ enum Slip132Format {
     wif: 0xef,
   ),
   Upub(
-    prefix: '024289ef',
+    version: '024289ef',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'tb',
     bip32Public: 0x024289ef,
@@ -95,7 +98,7 @@ enum Slip132Format {
     wif: 0xef,
   ),
   vpub(
-    prefix: '045f1cf6',
+    version: '045f1cf6',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'tb',
     bip32Public: 0x045f1cf6,
@@ -105,7 +108,7 @@ enum Slip132Format {
     wif: 0xef,
   ),
   Vpub(
-    prefix: '02575483',
+    version: '02575483',
     messagePrefix: '\x18Bitcoin Signed Message:\n',
     bech32: 'tb',
     bip32Public: 0x02575483,
@@ -116,7 +119,7 @@ enum Slip132Format {
   );
 
   const Slip132Format({
-    required this.prefix,
+    required this.version,
     required this.messagePrefix,
     required this.bech32,
     required this.bip32Public,
@@ -126,7 +129,7 @@ enum Slip132Format {
     required this.wif,
   });
 
-  final String prefix;
+  final String version;
   final String messagePrefix;
   final String bech32;
   final int bip32Public;
@@ -137,4 +140,25 @@ enum Slip132Format {
 
   Bip32Type get bip32 => Bip32Type(public: bip32Public, private: bip32Private);
   NetworkType get network => NetworkType(wif: wif, bip32: bip32);
+
+  static Slip132Format parse(String input) {
+    input = input.trim();
+    final bytes = bs58check.decode(input);
+    final versionBytes = bytes.sublist(0, 4);
+    final versionHex = HEX.encode(versionBytes);
+
+    for (final format in Slip132Format.values) {
+      if (format.version == versionHex) return format;
+    }
+
+    throw 'Invalid SLIP-132 format: $input';
+  }
+
+  static Slip132Format? tryParse(String input) {
+    try {
+      return parse(input);
+    } catch (e) {
+      return null;
+    }
+  }
 }
