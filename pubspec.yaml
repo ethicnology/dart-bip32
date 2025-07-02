@@ -1,6 +1,6 @@
 name: bip32_keys
 description: A BIP32 with SLIP132 support for Dart/Flutter community.
-version: 3.1.0
+version: 3.1.1
 homepage: https://github.com/ethicnology/dart-bip32-keys
 
 environment:

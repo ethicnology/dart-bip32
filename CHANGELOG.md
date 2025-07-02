@@ -1,3 +1,11 @@
+## 3.1.1
+
+- **FEAT**: Add `Slip132Format.parse()` and `Slip132Format.tryParse()` methods for detecting SLIP-132 formats from extended keys
+- **FEAT**: Add comprehensive tests for parse/tryParse functionality using existing test vectors
+- **REFACTOR**: Rename `prefix` field to `version` in `Slip132Format` enum for better clarity
+- **IMPROVE**: Update parse logic to decode Base58Check and compare version bytes instead of string prefixes
+- **IMPROVE**: Add proper error handling for invalid Base58Check input in parse methods
+
 ## 3.1.0
 
 - **FEAT**: Add SLIP-132 support with comprehensive enum-based format system
